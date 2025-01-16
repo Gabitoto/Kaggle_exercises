@@ -1,2 +1,2 @@
 # Kaggle_exercises
-Notebooks 
+Notebooks de Kaggle donde ponemos en practica Pandas, Algoritmia y BBDD
