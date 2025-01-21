@@ -1,0 +1,1024 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "fabc3e3e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.005874,
+     "end_time": "2025-01-21T22:01:25.585034",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:25.579160",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "**This notebook is an exercise in the [Pandas](https://www.kaggle.com/learn/pandas) course.  You can reference the tutorial at [this link](https://www.kaggle.com/residentmario/grouping-and-sorting).**\n",
+    "\n",
+    "---\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e69d08a7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00481,
+     "end_time": "2025-01-21T22:01:25.595115",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:25.590305",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Introduction\n",
+    "\n",
+    "In these exercises we'll apply groupwise analysis to our dataset.\n",
+    "\n",
+    "Run the code cell below to load the data before running the exercises."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "5286fd2a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:25.606447Z",
+     "iopub.status.busy": "2025-01-21T22:01:25.606031Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.683521Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.682422Z"
+    },
+    "papermill": {
+     "duration": 4.08507,
+     "end_time": "2025-01-21T22:01:29.685302",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:25.600232",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Setup complete.\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.10/dist-packages/learntools/pandas/grouping_and_sorting.py:29: FutureWarning: The provided callable <built-in function min> is currently using SeriesGroupBy.min. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"min\" instead.\n",
+      "  _expected = reviews.groupby('variety').price.agg([min, max])\n",
+      "/usr/local/lib/python3.10/dist-packages/learntools/pandas/grouping_and_sorting.py:29: FutureWarning: The provided callable <built-in function max> is currently using SeriesGroupBy.max. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"max\" instead.\n",
+      "  _expected = reviews.groupby('variety').price.agg([min, max])\n",
+      "/usr/local/lib/python3.10/dist-packages/learntools/pandas/grouping_and_sorting.py:35: FutureWarning: The provided callable <built-in function min> is currently using SeriesGroupBy.min. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"min\" instead.\n",
+      "  _expected = reviews.groupby('variety').price.agg([min, max]).sort_values(by=['min', 'max'], ascending=False)\n",
+      "/usr/local/lib/python3.10/dist-packages/learntools/pandas/grouping_and_sorting.py:35: FutureWarning: The provided callable <built-in function max> is currently using SeriesGroupBy.max. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"max\" instead.\n",
+      "  _expected = reviews.groupby('variety').price.agg([min, max]).sort_values(by=['min', 'max'], ascending=False)\n"
+     ]
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "\n",
+    "reviews = pd.read_csv(\"../input/wine-reviews/winemag-data-130k-v2.csv\", index_col=0)\n",
+    "#pd.set_option(\"display.max_rows\", 5)\n",
+    "\n",
+    "from learntools.core import binder; binder.bind(globals())\n",
+    "from learntools.pandas.grouping_and_sorting import *\n",
+    "print(\"Setup complete.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "17f9e28d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.004578,
+     "end_time": "2025-01-21T22:01:29.695026",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.690448",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Exercises"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "bf68c569",
+   "metadata": {
+    "papermill": {
+     "duration": 0.004948,
+     "end_time": "2025-01-21T22:01:29.704682",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.699734",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 1.\n",
+    "Who are the most common wine reviewers in the dataset? Create a `Series` whose index is the `taster_twitter_handle` category from the dataset, and whose values count how many reviews each person wrote."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "4157c36a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.715495Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.715109Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.740132Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.739071Z"
+    },
+    "papermill": {
+     "duration": 0.032637,
+     "end_time": "2025-01-21T22:01:29.742062",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.709425",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.16666666666666666, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"1_ReviewsWritten\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct:</span> \n",
+       "\n",
+       "\n",
+       "```python\n",
+       "reviews_written = reviews.groupby('taster_twitter_handle').size()\n",
+       "```\n",
+       "or\n",
+       "```python\n",
+       "reviews_written = reviews.groupby('taster_twitter_handle').taster_twitter_handle.count()\n",
+       "```\n"
+      ],
+      "text/plain": [
+       "Correct: \n",
+       "\n",
+       "\n",
+       "```python\n",
+       "reviews_written = reviews.groupby('taster_twitter_handle').size()\n",
+       "```\n",
+       "or\n",
+       "```python\n",
+       "reviews_written = reviews.groupby('taster_twitter_handle').taster_twitter_handle.count()\n",
+       "```"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Your code here\n",
+    "reviews_written = reviews.groupby('taster_twitter_handle').taster_twitter_handle.count()\n",
+    "\n",
+    "# Check your answer\n",
+    "q1.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "e8c68d8a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.754385Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.753979Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.761159Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.760312Z"
+    },
+    "papermill": {
+     "duration": 0.015085,
+     "end_time": "2025-01-21T22:01:29.762747",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.747662",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"interactionType\": 2, \"questionType\": 1, \"questionId\": \"1_ReviewsWritten\", \"learnToolsVersion\": \"0.3.4\", \"valueTowardsCompletion\": 0.0, \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\", \"outcomeType\": 4}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#3366cc\">Hint:</span> Use the `groupby` operation and `size()` (or `count()`)."
+      ],
+      "text/plain": [
+       "Hint: Use the `groupby` operation and `size()` (or `count()`)."
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "q1.hint()\n",
+    "#q1.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "7fc8f2dd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.005303,
+     "end_time": "2025-01-21T22:01:29.774005",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.768702",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.\n",
+    "What is the best wine I can buy for a given amount of money? Create a `Series` whose index is wine prices and whose values is the maximum number of points a wine costing that much was given in a review. Sort the values by price, ascending (so that `4.0` dollars is at the top and `3300.0` dollars is at the bottom)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "fe77a7b5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.786272Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.785878Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.798595Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.797501Z"
+    },
+    "papermill": {
+     "duration": 0.020592,
+     "end_time": "2025-01-21T22:01:29.800158",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.779566",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.16666666666666666, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"2_BestRatingPerPrice\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "best_rating_per_price = reviews.groupby(['price']).points.max()\n",
+    "best_rating_per_price.sort_index()\n",
+    "\n",
+    "# Check your answer\n",
+    "q2.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "85c0a58c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.813369Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.812964Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.820078Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.819251Z"
+    },
+    "papermill": {
+     "duration": 0.017294,
+     "end_time": "2025-01-21T22:01:29.823388",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.806094",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"interactionType\": 2, \"questionType\": 1, \"questionId\": \"2_BestRatingPerPrice\", \"learnToolsVersion\": \"0.3.4\", \"valueTowardsCompletion\": 0.0, \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\", \"outcomeType\": 4}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#3366cc\">Hint:</span> Use `max()` and `sort_index()`.  The relevant columns in the DataFrame are `price` and `points`."
+      ],
+      "text/plain": [
+       "Hint: Use `max()` and `sort_index()`.  The relevant columns in the DataFrame are `price` and `points`."
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "q2.hint()\n",
+    "#q2.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "e2786349",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006477,
+     "end_time": "2025-01-21T22:01:29.837353",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.830876",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 3.\n",
+    "What are the minimum and maximum prices for each `variety` of wine? Create a `DataFrame` whose index is the `variety` category from the dataset and whose values are the `min` and `max` values thereof."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "a1251ba0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.851862Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.851537Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.876024Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.874947Z"
+    },
+    "papermill": {
+     "duration": 0.033607,
+     "end_time": "2025-01-21T22:01:29.877637",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.844030",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "<ipython-input-6-bd1d1dcc6a67>:1: FutureWarning: The provided callable <built-in function min> is currently using SeriesGroupBy.min. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"min\" instead.\n",
+      "  price_extremes = reviews.groupby(\"variety\").price.agg([min,max])\n",
+      "<ipython-input-6-bd1d1dcc6a67>:1: FutureWarning: The provided callable <built-in function max> is currently using SeriesGroupBy.max. In a future version of pandas, the provided callable will be used directly. To keep current behavior pass the string \"max\" instead.\n",
+      "  price_extremes = reviews.groupby(\"variety\").price.agg([min,max])\n"
+     ]
+    },
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.16666666666666666, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"3_PriceExtremes\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "price_extremes = reviews.groupby(\"variety\").price.agg([min,max])\n",
+    "\n",
+    "# Check your answer\n",
+    "q3.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "bb9838d6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.891122Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.890775Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.894429Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.893553Z"
+    },
+    "papermill": {
+     "duration": 0.012019,
+     "end_time": "2025-01-21T22:01:29.895921",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.883902",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#q3.hint()\n",
+    "#q3.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "080c317b",
+   "metadata": {
+    "papermill": {
+     "duration": 0.005832,
+     "end_time": "2025-01-21T22:01:29.908391",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.902559",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 4.\n",
+    "What are the most expensive wine varieties? Create a variable `sorted_varieties` containing a copy of the dataframe from the previous question where varieties are sorted in descending order based on minimum price, then on maximum price (to break ties)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "58924c08",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.921638Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.921266Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.931683Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.930649Z"
+    },
+    "papermill": {
+     "duration": 0.019031,
+     "end_time": "2025-01-21T22:01:29.933419",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.914388",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.16666666666666666, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"4_SortedVarieties\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "sorted_varieties = price_extremes.sort_values(by=['min', 'max'], ascending=False)\n",
+    "# Check your answer\n",
+    "q4.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "3ea6cb9b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.947643Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.947316Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.951042Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.950119Z"
+    },
+    "papermill": {
+     "duration": 0.012722,
+     "end_time": "2025-01-21T22:01:29.952632",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.939910",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#q4.hint()\n",
+    "#q4.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "4a3d3399",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006817,
+     "end_time": "2025-01-21T22:01:29.966200",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.959383",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 5.\n",
+    "Create a `Series` whose index is reviewers and whose values is the average review score given out by that reviewer. Hint: you will need the `taster_name` and `points` columns."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "22fb62d3",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:29.980079Z",
+     "iopub.status.busy": "2025-01-21T22:01:29.979691Z",
+     "iopub.status.idle": "2025-01-21T22:01:29.999463Z",
+     "shell.execute_reply": "2025-01-21T22:01:29.998444Z"
+    },
+    "papermill": {
+     "duration": 0.028849,
+     "end_time": "2025-01-21T22:01:30.001363",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:29.972514",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.16666666666666666, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"5_ReviewerMeanRatings\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "reviewer_mean_ratings = reviewer_mean_ratings = reviews.groupby('taster_name').points.mean()\n",
+    "\n",
+    "# Check your answer\n",
+    "q5.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "be578252",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:30.016404Z",
+     "iopub.status.busy": "2025-01-21T22:01:30.016015Z",
+     "iopub.status.idle": "2025-01-21T22:01:30.026407Z",
+     "shell.execute_reply": "2025-01-21T22:01:30.025403Z"
+    },
+    "papermill": {
+     "duration": 0.019532,
+     "end_time": "2025-01-21T22:01:30.027893",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.008361",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"interactionType\": 2, \"questionType\": 1, \"questionId\": \"5_ReviewerMeanRatings\", \"learnToolsVersion\": \"0.3.4\", \"valueTowardsCompletion\": 0.0, \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\", \"outcomeType\": 4}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#3366cc\">Hint:</span> Use `mean()`."
+      ],
+      "text/plain": [
+       "Hint: Use `mean()`."
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"interactionType\": 3, \"questionType\": 1, \"questionId\": \"5_ReviewerMeanRatings\", \"learnToolsVersion\": \"0.3.4\", \"valueTowardsCompletion\": 0.0, \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\", \"outcomeType\": 4}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc99\">Solution:</span> \n",
+       "```python\n",
+       "reviewer_mean_ratings = reviews.groupby('taster_name').points.mean()\n",
+       "```"
+      ],
+      "text/plain": [
+       "Solution: \n",
+       "```python\n",
+       "reviewer_mean_ratings = reviews.groupby('taster_name').points.mean()\n",
+       "```"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "q5.hint()\n",
+    "q5.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f0bfacd7",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006988,
+     "end_time": "2025-01-21T22:01:30.041862",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.034874",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Are there significant differences in the average scores assigned by the various reviewers? Run the cell below to use the `describe()` method to see a summary of the range of values."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "82427535",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:30.057857Z",
+     "iopub.status.busy": "2025-01-21T22:01:30.057536Z",
+     "iopub.status.idle": "2025-01-21T22:01:30.068454Z",
+     "shell.execute_reply": "2025-01-21T22:01:30.067581Z"
+    },
+    "papermill": {
+     "duration": 0.021178,
+     "end_time": "2025-01-21T22:01:30.070050",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.048872",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "count    19.000000\n",
+       "mean     88.233026\n",
+       "std       1.243610\n",
+       "min      85.855422\n",
+       "25%      87.323501\n",
+       "50%      88.536235\n",
+       "75%      88.975256\n",
+       "max      90.562551\n",
+       "Name: points, dtype: float64"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "reviewer_mean_ratings.describe()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "94fcfe04",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00694,
+     "end_time": "2025-01-21T22:01:30.084307",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.077367",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 6.\n",
+    "What combination of countries and varieties are most common? Create a `Series` whose index is a `MultiIndex`of `{country, variety}` pairs. For example, a pinot noir produced in the US should map to `{\"US\", \"Pinot Noir\"}`. Sort the values in the `Series` in descending order based on wine count."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "94e591c7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:30.100135Z",
+     "iopub.status.busy": "2025-01-21T22:01:30.099735Z",
+     "iopub.status.idle": "2025-01-21T22:01:30.133741Z",
+     "shell.execute_reply": "2025-01-21T22:01:30.132733Z"
+    },
+    "papermill": {
+     "duration": 0.04406,
+     "end_time": "2025-01-21T22:01:30.135632",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.091572",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "application/javascript": [
+       "parent.postMessage({\"jupyterEvent\": \"custom.exercise_interaction\", \"data\": {\"outcomeType\": 1, \"valueTowardsCompletion\": 0.16666666666666666, \"interactionType\": 1, \"questionType\": 1, \"questionId\": \"6_GroupbyCountryVariety\", \"learnToolsVersion\": \"0.3.4\", \"failureMessage\": \"\", \"exceptionClass\": \"\", \"trace\": \"\"}}, \"*\")"
+      ],
+      "text/plain": [
+       "<IPython.core.display.Javascript object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/markdown": [
+       "<span style=\"color:#33cc33\">Correct</span>"
+      ],
+      "text/plain": [
+       "Correct"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "country_variety_counts = country_variety_counts = reviews.groupby(['country', 'variety']).size().sort_values(ascending=False)\n",
+    "# Check your answer\n",
+    "q6.check()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "b8d9f2f4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-01-21T22:01:30.151633Z",
+     "iopub.status.busy": "2025-01-21T22:01:30.151274Z",
+     "iopub.status.idle": "2025-01-21T22:01:30.155443Z",
+     "shell.execute_reply": "2025-01-21T22:01:30.154294Z"
+    },
+    "papermill": {
+     "duration": 0.013901,
+     "end_time": "2025-01-21T22:01:30.156937",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.143036",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "#q6.hint()\n",
+    "#q6.solution()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "191dc1cd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006905,
+     "end_time": "2025-01-21T22:01:30.171477",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.164572",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# Keep going\n",
+    "\n",
+    "Move on to the [**data types and missing data**](https://www.kaggle.com/residentmario/data-types-and-missing-values)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c98191ca",
+   "metadata": {
+    "papermill": {
+     "duration": 0.006991,
+     "end_time": "2025-01-21T22:01:30.185603",
+     "exception": false,
+     "start_time": "2025-01-21T22:01:30.178612",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "---\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "*Have questions or comments? Visit the [course discussion forum](https://www.kaggle.com/learn/pandas/discussion) to chat with other learners.*"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 655,
+     "sourceId": 1252,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 2321,
+     "sourceId": 3919,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 2894,
+     "sourceId": 4877,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 3491,
+     "sourceId": 5624,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 1442,
+     "sourceId": 8172,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 9366,
+     "sourceId": 13206,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 179555,
+     "sourceId": 403916,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 4549,
+     "sourceId": 466349,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 2478,
+     "sourceId": 1151655,
+     "sourceType": "datasetVersion"
+    },
+    {
+     "datasetId": 10128,
+     "sourceId": 5438389,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.12"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 8.143923,
+   "end_time": "2025-01-21T22:01:30.814484",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-01-21T22:01:22.670561",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
